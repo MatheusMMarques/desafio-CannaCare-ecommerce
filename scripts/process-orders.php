@@ -34,22 +34,27 @@ $productRepository = new ProductRepository($pdo);
 $orderRepository = new OrderRepository($pdo);
 $processor = new OrderProcessor($pdo, $productRepository, $orderRepository);
 
-echo "Processando pedidos...\n";
+echo "Processando pedidos...\n\n";
 
 foreach ($orders as $index => $orderData) {
     if (!is_array($orderData)) {
-        echo 'Pedido #' . ($index + 1) . " | Status: erro | Pedido invalido\n";
+        echo 'Pedido #' . ($index + 1) . "\n";
+        echo "Produto: Nao informado\n";
+        echo "Quantidade solicitada: Nao informada\n";
+        echo "Estoque antes: Nao disponivel\n";
+        echo "Estoque depois: Nao disponivel\n";
+        echo "Status: erro\n";
+        echo "Resultado: Pedido invalido\n\n";
         continue;
     }
 
     $result = $processor->process($orderData);
 
-    echo sprintf(
-        "Pedido #%d | Produto ID: %s | Quantidade: %s | Status: %s | %s\n",
-        $index + 1,
-        $result['produto_id'] ?? 'nao informado',
-        $result['quantidade'] ?? 'nao informada',
-        $result['status'],
-        $result['mensagem'],
-    );
+    echo 'Pedido #' . ($index + 1) . "\n";
+    echo 'Produto: ' . ($result['produto_nome'] ?? 'Nao encontrado') . "\n";
+    echo 'Quantidade solicitada: ' . ($result['quantidade'] ?? 'Nao informada') . "\n";
+    echo 'Estoque antes: ' . ($result['estoque_antes'] ?? 'Nao disponivel') . "\n";
+    echo 'Estoque depois: ' . ($result['estoque_depois'] ?? 'Nao disponivel') . "\n";
+    echo 'Status: ' . $result['status'] . "\n";
+    echo 'Resultado: ' . $result['mensagem'] . "\n\n";
 }
