@@ -1,0 +1,14 @@
+{
+    "name": "matheus/desafio-php-ecommerce",
+    "description": "Desafio técnico PHP para processamento de pedidos de e-commerce",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.3"
+    }
+}
