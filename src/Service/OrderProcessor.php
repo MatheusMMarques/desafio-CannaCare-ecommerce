@@ -23,21 +23,38 @@ class OrderProcessor
         $productId = $orderData['produto_id'] ?? null;
         $quantity = $orderData['quantidade'] ?? null;
 
+        if (!is_int($productId) || $productId <= 0) {
+            return [
+                'produto_id' => $productId,
+                'quantidade' => $quantity,
+                'status' => 'erro',
+                'mensagem' => 'Produto ID invalido',
+            ];
+        }
+
+        if (!is_int($quantity) || $quantity <= 0) {
+            return [
+                'produto_id' => $productId,
+                'quantidade' => $quantity,
+                'status' => 'erro',
+                'mensagem' => 'Quantidade invalida',
+            ];
+        }
+
         try {
             $this->pdo->beginTransaction();
-
-            if (!is_int($productId) || $productId <= 0) {
-                return $this->cancelWithError($productId, $quantity, 'Produto ID invalido');
-            }
-
-            if (!is_int($quantity) || $quantity <= 0) {
-                return $this->cancelWithError($productId, $quantity, 'Quantidade invalida');
-            }
 
             $product = $this->productRepository->findById($productId);
 
             if ($product === null) {
-                return $this->cancelWithError($productId, $quantity, 'Produto nao encontrado');
+                $this->pdo->rollBack();
+
+                return [
+                    'produto_id' => $productId,
+                    'quantidade' => $quantity,
+                    'status' => 'erro',
+                    'mensagem' => 'Produto nao encontrado',
+                ];
             }
 
             if ((int) $product['estoque'] >= $quantity) {
@@ -71,17 +88,5 @@ class OrderProcessor
                 'mensagem' => 'Erro ao processar pedido: ' . $exception->getMessage(),
             ];
         }
-    }
-
-    private function cancelWithError(mixed $productId, mixed $quantity, string $message): array
-    {
-        $this->pdo->rollBack();
-
-        return [
-            'produto_id' => $productId,
-            'quantidade' => $quantity,
-            'status' => 'erro',
-            'mensagem' => $message,
-        ];
     }
 }
